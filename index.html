@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Economiza - Compra Inteligente</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16a34a">
+<link rel="icon" href="icons/icon-512.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>body{font-family:Inter,sans-serif;background:#f8f7f4}</style>
+</head>
+<body class="pb-24">
+<div class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+
+<!-- Onboarding / Splash Header Pro -->
+<div class="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white p-6 rounded-b-[32px]">
+<div class="flex justify-between items-start">
+<div class="flex gap-3 items-center">
+<img src="icons/icon-192.png" class="w-12 h-12 rounded-2xl">
+<div><h1 class="text-xl font-extrabold">Economiza</h1><p class="text-[11px] text-zinc-400">Compra Inteligente • Barra Mansa</p></div>
+</div>
+<div class="bg-green-500 text-white rounded-xl px-3 py-2 text-center">
+<p class="text-[8px] uppercase font-bold">ECONOMIA</p>
+<p class="font-extrabold text-sm">R$ 180/mês</p>
+</div>
+</div>
+<div class="mt-4 bg-white/10 rounded-2xl p-3 backdrop-blur">
+<div class="flex justify-between text-[10px]"><span class="opacity-70">🟢 Tempo real ativo • 6 mercados</span><span class="font-bold">Dia 13 = melhor dia</span></div>
+<div class="mt-2 grid grid-cols-6 gap-1 text-[8px] text-center">
+<div class="bg-green-500 rounded-lg p-1.5 font-bold">Spani</div>
+<div class="bg-white/20 rounded-lg p-1.5">Royal</div>
+<div class="bg-white/20 rounded-lg p-1.5">Diga</div>
+<div class="bg-white/20 rounded-lg p-1.5">Bramil</div>
+<div class="bg-white/20 rounded-lg p-1.5">Atacadão</div>
+<div class="bg-white/20 rounded-lg p-1.5">Floresta</div>
+</div>
+</div>
+</div>
+
+<!-- Tabs Pro -->
+<div class="flex gap-1 p-3 sticky top-0 bg-white/90 backdrop-blur z-30 border-b overflow-x-auto">
+<button onclick="go('lista')" id="b-lista" class="bg-zinc-900 text-white py-2.5 px-4 rounded-full text-[11px] font-bold whitespace-nowrap shadow">🛒 Lista</button>
+<button onclick="go('encartes')" id="b-encartes" class="bg-gray-100 py-2.5 px-4 rounded-full text-[11px] font-bold whitespace-nowrap">Encarte</button>
+<button onclick="go('recibos')" id="b-recibos" class="bg-gray-100 py-2.5 px-4 rounded-full text-[11px] font-bold whitespace-nowrap">Recibos</button>
+<button onclick="go('scanner')" id="b-scanner" class="bg-green-600 text-white py-2.5 px-4 rounded-full text-[11px] font-bold whitespace-nowrap">📷 Scanner</button>
+<button onclick="go('onde')" id="b-onde" class="bg-gray-100 py-2.5 px-4 rounded-full text-[11px] font-bold whitespace-nowrap">Onde</button>
+</div>
+
+<!-- LISTA -->
+<div id="v-lista" class="p-4">
+<div class="bg-green-50 border border-green-200 rounded-2xl p-3 flex gap-3">
+<span class="text-xl">💡</span>
+<div><p class="text-xs font-bold text-green-900">Como economizar R$ 180/mês</p><p class="text-[11px] text-green-800 mt-1">1. Lance sua lista grande (arroz, feijão, óleo, carnes, hortifruti) • 2. Clique processar • 3. App separa por sessão e mostra onde tá mais barato em tempo real • 4. Compra tudo no dia 13</p></div>
+</div>
+
+<textarea id="inputLista" rows="8" placeholder="Exemplo da sua compra grande:
+Arroz 5kg - 2 un
+Feijão 1kg - 4 kg
+Óleo - 4 un
+Melancia - 1 un
+Manga - 2 kg
+Carne Moída - 3 kg
+Frango Peito - 4 kg
+Ovos - 2 cartelas
+Detergente - 6 un" class="w-full border-2 border-dashed border-zinc-300 rounded-2xl p-4 mt-3 text-sm focus:border-green-500 outline-none"></textarea>
+
+<button onclick="processar()" class="w-full mt-3 bg-zinc-900 text-white py-4 rounded-2xl font-bold text-sm shadow-lg">⚡ Comparar por sessão em tempo real</button>
+
+<div id="resultado" class="mt-6 hidden">
+<div id="porSessao" class="space-y-4"></div>
+<div class="mt-6 bg-zinc-900 text-white rounded-[24px] p-5">
+<h4 class="font-bold text-sm">📍 Onde comprar (estratégia 1x/mês)</h4>
+<div id="ondePorSessao" class="mt-3 space-y-2"></div>
+<button onclick="gerarZap()" class="w-full mt-4 bg-green-500 text-white py-3 rounded-xl font-bold text-sm">📲 Gerar listinha por mercado pro WhatsApp</button>
+</div>
+</div>
+</div>
+
+<!-- ENCARTES -->
+<div id="v-encartes" class="p-4 hidden">
+<div class="flex gap-1 mb-3 overflow-x-auto">
+<button onclick="setSess('Despensa')" id="s-Despensa" class="bg-zinc-900 text-white px-4 py-2 rounded-full text-[11px] font-bold">🥫 Despensa</button>
+<button onclick="setSess('Hortifruti')" id="s-Hortifruti" class="bg-gray-100 px-4 py-2 rounded-full text-[11px] font-bold">🥬 Hortifruti</button>
+<button onclick="setSess('Carnes e ovos')" id="s-Carnes e ovos" class="bg-gray-100 px-4 py-2 rounded-full text-[11px] font-bold">🥩 Carnes/Ovos</button>
+<button onclick="setSess('Limpeza e higiene')" id="s-Limpeza e higiene" class="bg-gray-100 px-4 py-2 rounded-full text-[11px] font-bold">🧴 Limpeza</button>
+</div>
+<button onclick="openE()" class="w-full bg-green-600 text-white py-3 rounded-2xl font-bold text-sm">+ Adicionar encarte com foto (OCR automático)</button>
+<div id="le" class="mt-3 space-y-2"></div>
+<div class="mt-6"><h3 class="font-bold text-xs mb-2">Comparativo por sessão • Verde = mais barato hoje</h3><div id="compSess" class="space-y-2"></div></div>
+</div>
+
+<!-- RECIBOS -->
+<div id="v-recibos" class="p-4 hidden">
+<div class="flex gap-2 mb-3"><button onclick="setMes('2026-07')" id="m-2026-07" class="bg-zinc-900 text-white px-4 py-2 rounded-full text-xs font-bold">Julho</button><button onclick="setMes('2026-08')" id="m-2026-08" class="bg-gray-100 px-4 py-2 rounded-full text-xs font-bold">Agosto</button><button onclick="setMes('2026-09')" id="m-2026-09" class="bg-gray-100 px-4 py-2 rounded-full text-xs font-bold">Setembro</button></div>
+<button onclick="openR()" class="w-full bg-zinc-900 text-white py-3 rounded-2xl font-bold text-sm">+ Novo recibo com foto</button>
+<div id="lr" class="space-y-2 mt-3"></div>
+<div class="mt-4 bg-zinc-900 text-white rounded-2xl p-4 flex justify-between items-center"><div><p class="text-[10px] opacity-60">Total em</p><p class="font-bold text-sm" id="mesLabel">Julho 2026</p></div><p class="text-xl font-extrabold" id="totalMes">R$ 0,00</p></div>
+</div>
+
+<!-- SCANNER -->
+<div id="v-scanner" class="p-4 hidden">
+<div class="bg-zinc-900 text-white rounded-2xl p-4 mb-3"><h3 class="font-bold text-sm">📷 Scanner código de barras</h3><p class="text-[11px] opacity-70 mt-1">Aponte pra prateleira. Lê na hora e adiciona na lista mensal.</p></div>
+<div id="reader" class="w-full rounded-2xl overflow-hidden border-2 border-zinc-200"></div>
+<div class="flex gap-2 mt-3"><button onclick="startScanner()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold text-sm">Iniciar</button><button onclick="stopScanner()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold text-sm">Parar</button></div>
+<div id="scanResult" class="hidden mt-4 border-2 border-green-500 rounded-2xl p-4 bg-green-50"><p class="text-[10px] text-green-800">Código lido:</p><p class="font-mono font-bold" id="codigoLido"></p><input id="nomeScan" placeholder="Nome do produto ex: Arroz 5kg" class="w-full border rounded-xl p-3 mt-3 text-sm"><button onclick="addFromScan()" class="w-full mt-3 bg-zinc-900 text-white py-3 rounded-xl font-bold text-sm">Adicionar na lista mensal</button></div>
+</div>
+
+<!-- ONDE -->
+<div id="v-onde" class="p-4 hidden">
+<h3 class="font-bold mb-3">Onde comprar sua compra grande</h3>
+<div id="ondeComprarLista" class="space-y-3"></div>
+<div class="mt-6 border rounded-2xl p-3"><p class="font-bold text-xs">🔍 Busca avulsa tempo real</p><div class="flex gap-2 mt-2"><input id="buscaReal" placeholder="Ex: Arroz 5kg" class="flex-1 border rounded-xl p-3 text-xs"><button onclick="buscaReal()" class="bg-zinc-900 text-white px-5 rounded-xl text-xs font-bold">Buscar</button></div><div id="resultadoBuscaReal" class="mt-3 space-y-2"></div></div>
+<div class="mt-8 text-center text-[10px] text-gray-400"><a href="privacy.html" class="underline">Privacidade</a> • <a href="terms.html" class="underline">Termos</a><p class="mt-1">Não afiliado a Diga, Bramil, Royal, Atacadão, Floresta, Spani</p></div>
+</div>
+
+<!-- MODAIS -->
+<div id="mR" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end"><div class="bg-white w-full rounded-t-[28px] p-5 max-h-[90vh] overflow-y-auto"><div class="flex justify-between mb-3"><h3 class="font-bold">Novo Recibo</h3><button onclick="closeR()" class="text-xl">×</button></div><div id="ocrR" class="hidden bg-blue-50 border rounded-xl p-3 mb-3 text-xs"><p class="font-bold">🤖 Lendo...</p><p id="ocrTR"></p></div><input id="rFoto" type="file" accept="image/*" class="w-full border rounded-xl p-2 mb-2 text-xs" onchange="lerRecibo(this)"><img id="rPrev" class="hidden w-full max-h-40 object-contain rounded-xl mb-2 border"><div class="grid grid-cols-2 gap-2 mb-2"><input id="rNome" placeholder="SAAE, Light..." class="border rounded-xl p-3 text-sm font-bold"><input id="rValor" type="number" step="0.01" placeholder="50,20" class="border rounded-xl p-3 text-sm font-bold"></div><div class="grid grid-cols-2 gap-2 mb-3"><select id="rMes" class="border rounded-xl p-3 text-sm"><option value="2026-07">Julho 2026</option><option value="2026-08">Agosto 2026</option><option value="2026-09">Setembro 2026</option></select><input id="rData" type="date" class="border rounded-xl p-3 text-sm"></div><button onclick="saveR()" class="w-full bg-zinc-900 text-white py-3 rounded-xl font-bold">Salvar</button></div></div>
+<div id="mE" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end"><div class="bg-white w-full rounded-t-[28px] p-5 max-h-[90vh] overflow-y-auto"><div class="flex justify-between mb-3"><h3 class="font-bold">Novo Encarte</h3><button onclick="closeE()" class="text-xl">×</button></div><div id="ocrE" class="hidden bg-green-50 border rounded-xl p-3 mb-3 text-xs"><p class="font-bold">🤖 Lendo encarte...</p><p id="ocrTE"></p></div><input id="eFoto" type="file" accept="image/*" class="w-full border rounded-xl p-2 mb-2 text-xs" onchange="lerEncarte(this)"><img id="ePrev" class="hidden w-full max-h-40 object-contain rounded-xl mb-2 border"><select id="eMerc" class="w-full border rounded-xl p-3 mb-2 text-sm"><option>Spani</option><option>Royal</option><option>Diga</option><option>Bramil</option><option>Atacadão</option><option>Floresta</option></select><textarea id="eItens" rows="6" placeholder="Arroz 5kg - 19,99" class="w-full border rounded-xl p-3 text-xs"></textarea><button onclick="saveE()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold mt-2">Salvar encarte</button></div></div>
+<div id="mFoto" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center p-4" onclick="closeFoto()"><div class="bg-white rounded-2xl p-3 w-full max-w-md"><img id="fotoG" class="w-full rounded-xl"></div></div>
+
+</div>
+
+<script>
+const SESS_KW = {"Despensa":["arroz","feijao","oleo","acucar","macarrao","farinha","leite cond","creme leite","milho","molho","maionese","azeite","cafe","cha","bisc","coco","cereal","trigo","fuba","sal","extrato","batata palha","leite"],"Hortifruti":["melancia","manga","banana","maca","tomate","alface","verdura","fruta","legume","batata","cebola"],"Carnes e ovos":["ling","lombo","figado","carne","pernil","frango","peito","suino","bovina","ovo","bisteca"],"Limpeza e higiene":["lava","amaciante","desinf","deterg","esponja","papel","creme dent","sabonete","dove","hastes","absorvente","shampoo","sabao"]};
+function getSess(n){n=n.toLowerCase(); for(let s in SESS_KW){ if(SESS_KW[s].some(k=>n.includes(k))) return s; } return "Despensa";}
+let mesAtual="2026-07"; let sessAtual="Despensa";
+let recibos = JSON.parse(localStorage.getItem('recibos_play')||'null') || [{id:1,nome:"SAAE",valor:50.20,mes:"2026-07",data:"2026-07-05",foto:null},{id:2,nome:"Light",valor:89.90,mes:"2026-07",data:"2026-07-06",foto:null},{id:3,nome:"Naomi 22/06",valor:818.86,mes:"2026-07",data:"2026-06-22",foto:null}];
+let encartes = JSON.parse(localStorage.getItem('encartes_play')||'null') || [
+ {mercado:"Spani", itens:[{nome:"Arroz 5kg Camil", preco:19.99},{nome:"Feijão 1kg", preco:5.49},{nome:"Óleo Soya", preco:5.99},{nome:"Melancia kg", preco:3.49},{nome:"Manga kg", preco:4.99},{nome:"Carne Moída kg", preco:18.90},{nome:"Ovos Cartela", preco:14.99},{nome:"Detergente Ypê", preco:1.89}]},
+ {mercado:"Royal", itens:[{nome:"Arroz 5kg", preco:22.99},{nome:"Melancia kg", preco:3.49},{nome:"Lombo Suíno kg", preco:16.90},{nome:"Ovos Cartela", preco:13.99}]},
+ {mercado:"Diga", itens:[{nome:"Arroz 5kg", preco:23.99},{nome:"Melancia kg", preco:4.29},{nome:"Carne Moída kg", preco:16.90}]},
+ {mercado:"Bramil", itens:[{nome:"Arroz 5kg", preco:21.50},{nome:"Frango Peito kg", preco:11.90}]},
+ {mercado:"Floresta", itens:[{nome:"Arroz 5kg", preco:20.90},{nome:"Melancia kg", preco:3.79}]},
+ {mercado:"Atacadão", itens:[{nome:"Arroz 5kg", preco:19.90},{nome:"Frango Peito kg", preco:11.90}]},
+];
+let listaMes = JSON.parse(localStorage.getItem('lista_play')||'[]');
+function saveAll(){localStorage.setItem('recibos_play',JSON.stringify(recibos)); localStorage.setItem('encartes_play',JSON.stringify(encartes)); localStorage.setItem('lista_play',JSON.stringify(listaMes));}
+function go(id){document.querySelectorAll('[id^=v-]').forEach(d=>d.classList.add('hidden')); document.getElementById('v-'+id).classList.remove('hidden'); document.querySelectorAll('[id^=b-]').forEach(b=>{b.className='bg-gray-100 py-2.5 px-4 rounded-full text-[11px] font-bold whitespace-nowrap';}); let b=document.getElementById('b-'+id); if(b) b.className='bg-zinc-900 text-white py-2.5 px-4 rounded-full text-[11px] font-bold whitespace-nowrap shadow'; if(id=='encartes') renE(); if(id=='recibos') renR(); if(id=='onde') renOndeLista();}
+function setMes(m){mesAtual=m; document.querySelectorAll('[id^=m-]').forEach(b=>{b.className='bg-gray-100 px-4 py-2 rounded-full text-xs font-bold';}); document.getElementById('m-'+m).className='bg-zinc-900 text-white px-4 py-2 rounded-full text-xs font-bold'; renR();}
+function setSess(s){sessAtual=s; document.querySelectorAll('[id^=s-]').forEach(b=>{b.className='bg-gray-100 px-4 py-2 rounded-full text-[11px] font-bold';}); document.getElementById('s-'+s).className='bg-zinc-900 text-white px-4 py-2 rounded-full text-[11px] font-bold'; renE(); renCompSess();}
+function renR(){const div=document.getElementById('lr'); const filt=recibos.filter(r=>r.mes==mesAtual); div.innerHTML=filt.map(r=>`<div class="border rounded-xl p-3 flex justify-between"><div><p class="font-bold text-sm">${r.nome}</p><p class="text-[10px] text-gray-500">${r.data||''} • ${r.mes}</p>${r.foto?`<button onclick="verFoto('${r.foto}')" class="text-[10px] text-blue-600 underline">Ver foto</button>`:''}</div><div class="text-right"><p class="font-bold">R$ ${r.valor.toFixed(2)}</p><button onclick="delR(${r.id})" class="text-[10px] text-red-500">Excluir</button></div></div>`).join('')||'<p class="text-xs text-gray-400 text-center">Sem recibos</p>'; document.getElementById('totalMes').innerText='R$ '+filt.reduce((a,b)=>a+b.valor,0).toFixed(2).replace('.',','); document.getElementById('mesLabel').innerText={ '2026-07':'Julho 2026','2026-08':'Agosto 2026','2026-09':'Setembro 2026'}[mesAtual];}
+function openR(){document.getElementById('mR').classList.remove('hidden');} function closeR(){document.getElementById('mR').classList.add('hidden');}
+let tempR=null; async function lerRecibo(input){const file=input.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=e=>{tempR=e.target.result; document.getElementById('rPrev').src=tempR; document.getElementById('rPrev').classList.remove('hidden');}; reader.readAsDataURL(file); document.getElementById('ocrR').classList.remove('hidden'); try{const {data:{text}} = await Tesseract.recognize(file,'por'); let nome="Recibo"; let valor=0; const m=text.match(/R?\$?\s*([0-9]+[.,][0-9]{2})/); if(m) valor=parseFloat(m[1].replace(',','.')); document.getElementById('rNome').value=nome; if(valor) document.getElementById('rValor').value=valor; document.getElementById('ocrTR').innerText=`Detectei valor R$ ${valor}`; }catch(e){}}
+function saveR(){const nome=document.getElementById('rNome').value.trim(); const valor=parseFloat(document.getElementById('rValor').value); const mes=document.getElementById('rMes').value; const data=document.getElementById('rData').value||new Date().toISOString().slice(0,10); if(!nome||!valor) return alert('Preencha'); recibos.push({id:Date.now(), nome, valor, mes, data, foto:tempR}); tempR=null; document.getElementById('rPrev').classList.add('hidden'); document.getElementById('rPrev').src=''; document.getElementById('rNome').value=''; document.getElementById('rValor').value=''; saveAll(); closeR(); renR();}
+function delR(id){recibos=recibos.filter(r=>r.id!=id); saveAll(); renR();}
+function renE(){const div=document.getElementById('le'); div.innerHTML=encartes.map(e=>`<div class="border rounded-xl p-3 flex justify-between items-center"><div><p class="font-bold text-xs">${e.mercado} • ${e.itens.length} itens</p><p class="text-[10px] text-gray-500">${e.itens.slice(0,2).map(i=>i.nome).join(', ')}</p></div><button onclick="delE('${e.mercado}')" class="text-[10px] text-red-500">Excluir</button></div>`).join('')||'<p class="text-xs text-gray-400 text-center">Sem encartes</p>';}
+function renCompSess(){const div=document.getElementById('compSess'); const mapa={}; encartes.forEach(en=>{en.itens.forEach(it=>{let sess=getSess(it.nome); if(sess!=sessAtual) return; const key=it.nome.toLowerCase().split(' ').slice(0,2).join(' '); if(!mapa[key]) mapa[key]={nome:it.nome, precos:{}}; mapa[key].precos[en.mercado]=it.preco;});}); let html=''; Object.values(mapa).forEach(p=>{const precos=Object.entries(p.precos); const menor=Math.min(...precos.map(e=>e[1])); html+=`<div class="border rounded-xl p-3"><p class="font-bold text-xs mb-2">${p.nome}</p><div class="flex gap-1.5 overflow-x-auto">`+precos.map(([m,pr])=>`<div class="min-w-[80px] border rounded-xl p-2 text-center ${pr==menor?'bg-green-600 text-white':''}"><p class="text-[9px]">${m}</p><p class="font-bold text-xs">R$ ${pr.toFixed(2)}</p></div>`).join('')+`</div></div>`;}); div.innerHTML=html||'<p class="text-xs text-gray-400 text-center">Sem produtos</p>';}
+function openE(){document.getElementById('mE').classList.remove('hidden');} function closeE(){document.getElementById('mE').classList.add('hidden');}
+let tempE=null; async function lerEncarte(input){const file=input.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=e=>{tempE=e.target.result; document.getElementById('ePrev').src=tempE; document.getElementById('ePrev').classList.remove('hidden');}; reader.readAsDataURL(file); document.getElementById('ocrE').classList.remove('hidden'); try{const {data:{text}} = await Tesseract.recognize(file,'por'); let itens=[]; text.split('\n').forEach(l=>{const m=l.match(/(.+?)\s+R?\$?\s*([0-9]+[.,][0-9]{2})/); if(m){itens.push(`${m[1].trim()} - ${parseFloat(m[2].replace(',','.')).toFixed(2).replace('.',',')}`);} }); if(itens.length>0) document.getElementById('eItens').value=itens.slice(0,20).join('\n'); document.getElementById('ocrTE').innerText=`Detectei ${itens.length} produtos!`; }catch(e){}}
+function saveE(){const merc=document.getElementById('eMerc').value; const txt=document.getElementById('eItens').value; const itens=txt.split('\n').filter(l=>l.includes('-')).map(l=>{const p=l.split('-'); return {nome:p[0].trim(), preco:parseFloat(p[1].replace(',','.').replace('R$','').trim())};}).filter(i=>i.preco>0); let ex=encartes.find(e=>e.mercado==merc); if(ex) ex.itens.push(...itens); else encartes.push({mercado:merc, itens}); saveAll(); closeE(); renE(); renCompSess();}
+function delE(m){encartes=encartes.filter(e=>e.mercado!=m); saveAll(); renE(); renCompSess();}
+function processar(){const txt=document.getElementById('inputLista').value.trim(); if(!txt) return alert('Digite sua lista'); const linhas=txt.split('\n').map(l=>l.trim()).filter(l=>l); listaMes=linhas; saveAll(); const porSessao={}; linhas.forEach(l=>{const s=getSess(l); if(!porSessao[s]) porSessao[s]=[]; porSessao[s].push(l);}); let html=''; for(let sess in porSessao){const icon=sess=='Despensa'?'🥫':sess=='Hortifruti'?'🥬':sess=='Carnes e ovos'?'🥩':'🧴'; html+=`<div class="border-2 rounded-2xl p-4"><h4 class="font-bold text-sm mb-3">${icon} ${sess} • ${porSessao[sess].length} itens</h4><div class="space-y-2">`; porSessao[sess].forEach(prod=>{const key=prod.toLowerCase().split(' ')[0]; let precos=[]; encartes.forEach(en=>{en.itens.forEach(it=>{if(it.nome.toLowerCase().includes(key)) precos.push({mercado:en.mercado, preco:it.preco});});}); precos.sort((a,b)=>a.preco-b.preco); html+=`<div class="bg-white border rounded-xl p-3"><p class="font-bold text-xs">${prod}</p>`; if(precos.length==0) html+=`<p class="text-[11px] text-gray-400">Sem preço hoje</p>`; else html+=`<div class="flex gap-1 mt-2 overflow-x-auto">`+precos.map((p,i)=>`<div class="min-w-[75px] rounded-xl p-2 text-center border text-[10px] ${i==0?'bg-green-600 text-white border-green-600':''}"><p>${p.mercado}</p><p class="font-bold">R$ ${p.preco.toFixed(2)}</p>${i==0?'<p class="text-[8px]">MAIS BARATO</p>':''}</div>`).join('')+`</div>`; html+=`</div>`;}); html+=`</div></div>`;} document.getElementById('porSessao').innerHTML=html; document.getElementById('resultado').classList.remove('hidden'); renOndeLista(); window.scrollTo({top:400, behavior:'smooth'});}
+function renOndeLista(){const div=document.getElementById('ondeComprarLista'); if(listaMes.length==0) return; const porMerc={}; listaMes.forEach(item=>{const key=item.toLowerCase().split(' ')[0]; let melhor={mercado:"Geral", preco:9999}; encartes.forEach(en=>{en.itens.forEach(ei=>{if(ei.nome.toLowerCase().includes(key) && ei.preco<melhor.preco) melhor={mercado:en.mercado, preco:ei.preco};});}); if(melhor.preco!=9999){if(!porMerc[melhor.mercado]) porMerc[melhor.mercado]=[]; porMerc[melhor.mercado].push(item);} }); div.innerHTML=Object.entries(porMerc).map(([m,itens])=>`<div class="border-2 border-zinc-900 rounded-2xl p-4"><p class="font-bold text-sm">🛒 ${m} - ${itens.length} itens - Compra grande dia 13</p><div class="mt-2 space-y-1">${itens.map(i=>`<div class="bg-gray-50 p-2 rounded-lg text-[11px]">${i}</div>`).join('')}</div></div>`).join('');}
+function gerarZap(){let txt="🛒 LISTA ECONOMIZA - COMPRA GRANDE 1x/mês - DIA 13\n\n"; txt+=document.getElementById('inputLista').value; if(navigator.clipboard){navigator.clipboard.writeText(txt); alert('Copiado pro WhatsApp!');}}
+function buscaReal(){const termo=document.getElementById('buscaReal').value.trim().toLowerCase(); if(!termo) return; const key=termo.split(' ')[0]; let enc=[]; encartes.forEach(en=>{en.itens.forEach(ei=>{if(ei.nome.toLowerCase().includes(key)) enc.push({mercado:en.mercado, preco:ei.preco, nome:ei.nome});});}); enc.sort((a,b)=>a.preco-b.preco); document.getElementById('resultadoBuscaReal').innerHTML=enc.length?enc.map((e,i)=>`<div class="flex justify-between border rounded-xl p-2 text-xs ${i==0?'bg-green-600 text-white':''}"><span>${e.mercado} - ${e.nome}</span><span class="font-bold">R$ ${e.preco.toFixed(2)}</span></div>`).join(''):'<p class="text-xs text-gray-400">Sem preço - adicione encarte</p>';}
+let html5Qr=null; function startScanner(){if(html5Qr) html5Qr.clear(); html5Qr=new Html5Qrcode("reader"); html5Qr.start({facingMode:"environment"},{fps:10, qrbox:250},(txt)=>{document.getElementById('codigoLido').innerText=txt; document.getElementById('scanResult').classList.remove('hidden'); html5Qr.stop().then(()=>html5Qr.clear());},()=>{}).catch(e=>alert(e));} function stopScanner(){if(html5Qr) html5Qr.stop().then(()=>html5Qr.clear());} function addFromScan(){const nome=document.getElementById('nomeScan').value.trim(); if(!nome) return; const cur=document.getElementById('inputLista').value; document.getElementById('inputLista').value=cur+(cur?'\n':'')+nome; document.getElementById('scanResult').classList.add('hidden'); go('lista');}
+function verFoto(src){if(!src||src=='null'||src=='') return alert('Sem foto'); document.getElementById('fotoG').src=src; document.getElementById('mFoto').classList.remove('hidden');} function closeFoto(){document.getElementById('mFoto').classList.add('hidden');}
+go('lista');
+</script>
+</body>
+</html>
